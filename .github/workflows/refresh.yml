@@ -18,6 +18,7 @@ jobs:
       - run: node collect/build.mjs
         env:
           WOOT_KEY: ${{ secrets.WOOT_KEY }}
+          DEBUG_EBAY: ${{ vars.DEBUG_EBAY }}
       - run: |
           git config user.name "Lena Hartmann"
           git config user.email "lena.hartmann@users.noreply.github.com"

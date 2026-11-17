@@ -8,6 +8,10 @@ export async function collectEbay({ minPct = 25, n = 15 }) {
   for (const [path, pageCat] of PAGES) {
     const html = await text('https://www.ebay.com' + path);
     const tiles = html.split(/<div[^>]*class="dne-itemtile dne-itemtile-[^"]*"/).slice(1);
+    if (process.env.DEBUG_EBAY) {
+      const i = html.indexOf('dne-itemtile');
+      console.error(`ebay ${path}: size ${html.length}, tiles ${tiles.length}, itm links ${(html.match(/ebay\.com\/itm\/\d+/g) || []).length}, marker at ${i}: ${JSON.stringify(html.slice(Math.max(0, i - 160), i + 700))}`);
+    }
     for (const tile of tiles) {
       const link = /href="?(https:\/\/www\.ebay\.com\/itm\/\d+)/.exec(tile);
       const title = /itemprop="?name"?[^>]*>([^<]+)</.exec(tile);
