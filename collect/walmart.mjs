@@ -1,0 +1,40 @@
+import { deal, money, pick, sleep, text } from './lib.mjs';
+
+const PAGES = [
+  ['/shop/deals', null], ['/shop/deals/flash-deals', null], ['/shop/deals/clearance', null],
+  ['/shop/deals/electronics', 'Tech'], ['/shop/deals/home', 'Home'], ['/shop/deals/toys', 'Toys'],
+  ['/shop/deals/fashion', 'Fashion'], ['/shop/deals/baby', 'Baby'], ['/shop/deals/pets', 'Pets'],
+];
+
+function walk(o, out) {
+  if (Array.isArray(o)) for (const v of o) walk(v, out);
+  else if (o && typeof o === 'object') {
+    if (o.usItemId && o.priceInfo && o.name) out.push(o);
+    else for (const v of Object.values(o)) walk(v, out);
+  }
+}
+
+/** Walmart's public deal pages: products with a previous price, in stock, not sponsored, with enough reviews. No pictures. */
+export async function collectWalmart({ minPct = 25, n = 15 }) {
+  const cards = [];
+  for (const [path, pageCat] of PAGES) {
+    const html = await text('https://www.walmart.com' + path);
+    const m = /<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/.exec(html);
+    if (!m) continue;
+    const items = []; walk(JSON.parse(m[1]), items);
+    for (const it of items) {
+      const price = money(it.priceInfo.linePrice || it.priceInfo.currentPrice), old = money(it.priceInfo.wasPrice);
+      if (!price || !old || it.isSponsoredFlag || it.isOutOfStock || (it.availabilityStatus && it.availabilityStatus !== 'IN_STOCK')) continue;
+      if ((it.numberOfReviews || 0) < 50 || (it.averageRating || 0) < 4) continue;
+      const pct = (1 - price / old) * 100;
+      if (it.sellerName && it.sellerName !== 'Walmart.com' && pct > 60) continue;
+      const url = 'https://www.walmart.com' + (it.canonicalUrl || '').split('?')[0];
+      if (!url.includes('/ip/')) continue;
+      const coupon = it.flag === 'Rollback' ? 'Rollback' : path.endsWith('/clearance') ? 'Clearance' : undefined;
+      const d = deal('Walmart', 'walmart', it.name, url, price, old, { coupon });
+      if (d) { if (d.category === 'Other' && pageCat) d.category = pageCat; if (d.pct >= minPct) cards.push(d); }
+    }
+    await sleep(1500);
+  }
+  return pick(cards, n, 4);
+}
