@@ -10,7 +10,7 @@ export async function collectEbay({ minPct = 25, n = 15 }) {
     const tiles = html.split(/<div[^>]*class="dne-itemtile dne-itemtile-[^"]*"/).slice(1);
     if (process.env.DEBUG_EBAY) {
       const i = html.indexOf('dne-itemtile');
-      console.error(`ebay ${path}: size ${html.length}, tiles ${tiles.length}, itm links ${(html.match(/ebay\.com\/itm\/\d+/g) || []).length}, marker at ${i}: ${JSON.stringify(html.slice(Math.max(0, i - 160), i + 700))}`);
+      const j = html.indexOf('dne-itemtile-price'); console.error(`ebay ${path}: size ${html.length}, tiles ${tiles.length}, price markers ${(html.match(/dne-itemtile-price/g) || []).length}, strike ${(html.match(/itemtile-price-strikethrough/g) || []).length}, name props ${(html.match(/itemprop="?name/g) || []).length}; first price block: ${JSON.stringify(html.slice(Math.max(0, j - 300), j + 500))}`);
     }
     for (const tile of tiles) {
       const link = /href="?(https:\/\/www\.ebay\.com\/itm\/\d+)/.exec(tile);
