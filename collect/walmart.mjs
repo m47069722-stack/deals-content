@@ -4,6 +4,8 @@ const PAGES = [
   ['/shop/deals', null], ['/shop/deals/flash-deals', null], ['/shop/deals/clearance', null],
   ['/shop/deals/electronics', 'Tech'], ['/shop/deals/home', 'Home'], ['/shop/deals/toys', 'Toys'],
   ['/shop/deals/fashion', 'Fashion'], ['/shop/deals/baby', 'Baby'], ['/shop/deals/pets', 'Pets'],
+  ['/shop/deals/sports-and-outdoors', 'Sports'], ['/shop/deals/patio-and-garden', 'Home'], ['/shop/deals/home-improvement', 'Tools'],
+  ['/shop/deals/video-games', 'Tech'],
 ];
 
 function walk(o, out) {
@@ -18,14 +20,18 @@ function walk(o, out) {
 export async function collectWalmart({ minPct = 25, n = 15 }) {
   const cards = [];
   for (const [path, pageCat] of PAGES) {
-    const html = await text('https://www.walmart.com' + path);
-    const m = /<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/.exec(html);
-    if (!m) continue;
-    const items = []; walk(JSON.parse(m[1]), items);
+    const items = [];
+    try {
+      const html = await text('https://www.walmart.com' + path);
+      const m = /<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/.exec(html);
+      if (m) walk(JSON.parse(m[1]), items);
+    } catch (e) {
+      console.error(`walmart ${path}: ${e.message || e}`);
+    }
     for (const it of items) {
       const price = money(it.priceInfo.linePrice || it.priceInfo.currentPrice), old = money(it.priceInfo.wasPrice);
       if (!price || !old || it.isSponsoredFlag || it.isOutOfStock || (it.availabilityStatus && it.availabilityStatus !== 'IN_STOCK')) continue;
-      if ((it.numberOfReviews || 0) < 50 || (it.averageRating || 0) < 4) continue;
+      if ((it.numberOfReviews || 0) < 100 || (it.averageRating || 0) < 4.2) continue;
       const pct = (1 - price / old) * 100;
       if (it.sellerName && it.sellerName !== 'Walmart.com' && pct > 60) continue;
       const url = 'https://www.walmart.com' + (it.canonicalUrl || '').split('?')[0];
@@ -37,5 +43,5 @@ export async function collectWalmart({ minPct = 25, n = 15 }) {
     }
     await sleep(1500);
   }
-  return pick(cards, n, Math.max(4, Math.ceil(n / 4)));
+  return pick(cards, n, Math.max(4, Math.ceil(n / 5)));
 }

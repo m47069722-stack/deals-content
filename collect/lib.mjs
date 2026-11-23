@@ -20,13 +20,15 @@ const BAD = /vape|tobacco|cigar|nicotine|cbd|adult|lingerie|erotic|nsfw|sexy|sex
 const INFLATED = /\bwatch(?:es)?\b|\bdiamond|\bcarat|\b\d+(?:\.\d+)?\s?ct\b|\bring\b|\bnecklace|\bbracelet|\bearring|\bpendant|\bjewel|\bgemstone|\bsapphire|\bemerald|\bmoissanite|\bsilver\b.*\bchain|\bgold\b.*\bchain|cologne|perfume|parfum|fragrance|eau de|\bed[tp]\b|toilette|body mist|\boz\b.*\b(?:silver|gold)\b|\b(?:silver|gold)\b.*\boz\b|\.999|bullion|\bcoins?\b/i;
 const MAX_PCT = 80;
 const MAX_PRICE = 1500;
+const MIN_SAVING = 10;
 const SHOUT = (t) => { const l = [...t].filter((c) => /[a-z]/i.test(c)); return l.length > 12 && l.filter((c) => c === c.toUpperCase()).length / l.length > 0.6; };
 
 const WORD = (w) => {
   const k = w.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp('(?:^|[^a-z])' + k + (w.trim().length <= 4 ? '(?:e?s)?(?![a-z])' : ''), 'i');
 };
-const CAT_RE = CATS.map(([c, words]) => [c, words.map(WORD)]);
+const ORDER = ['Toys', 'Sports', 'Pets', 'Baby', 'Tech', 'Kitchen', 'Tools', 'Home', 'Beauty', 'Fashion'];
+const CAT_RE = [...CATS].sort((x, y) => ORDER.indexOf(x[0]) - ORDER.indexOf(y[0])).map(([c, words]) => [c, words.map(WORD)]);
 
 export function category(title, fallback = 'Other') {
   for (const [c, res] of CAT_RE) if (res.some((r) => r.test(title))) return c;
@@ -50,7 +52,7 @@ export function clean(title) {
 export function deal(store, source, title, url, price, old, extra = {}) {
   title = clean(title);
   if (!title || title.length < 8 || BAD.test(title) || INFLATED.test(title) || SHOUT(title) || !(price > 0) || price > MAX_PRICE) return null;
-  if (!(old > price)) return null;
+  if (!(old > price) || old - price < MIN_SAVING) return null;
   const pct = Math.round((1 - price / old) * 100);
   if (pct > MAX_PCT) return null;
   const out = {

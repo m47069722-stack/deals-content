@@ -23,8 +23,8 @@ const STORES = [
 
 const SOURCES = {
   woot: () => collectWoot({ key: process.env.WOOT_KEY }),
-  walmart: (n) => collectWalmart({ n }),
-  ebay: (n) => collectEbay({ n }),
+  walmart: (few) => collectWalmart({ n: few ? 15 : 100 }),
+  ebay: (few) => collectEbay({ n: few ? 15 : 45 }),
 };
 
 const readPrevious = () => {
@@ -42,7 +42,7 @@ const fresh = (d) => now - Date.parse(d.fetched_at || 0) < (KEEP_DAYS[d.source] 
 const result = {}; const status = { ran_at: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'), sources: {} };
 for (const [name, run] of Object.entries(SOURCES)) {
   try {
-    const cards = await run(result.woot?.length ? 15 : 45);
+    const cards = await run(Boolean(result.woot?.length));
     if (cards.length < 5) throw new Error(`only ${cards.length} cards`);
     result[name] = cards;
     status.sources[name] = { ok: true, cards: cards.length };

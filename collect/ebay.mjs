@@ -6,7 +6,12 @@ const PAGES = [['/globaldeals', null], ['/globaldeals/tech', 'Tech'], ['/globald
 export async function collectEbay({ minPct = 25, n = 15 }) {
   const cards = [];
   for (const [path, pageCat] of PAGES) {
-    const html = await text('https://www.ebay.com' + path);
+    let html = '';
+    try {
+      html = await text('https://www.ebay.com' + path);
+    } catch (e) {
+      console.error(`ebay ${path}: ${e.message || e}`);
+    }
     const tiles = html.split(/<div[^>]*class="dne-itemtile dne-itemtile-[^"]*"/).slice(1);
     if (process.env.DEBUG_EBAY) {
       let shown = 0;
