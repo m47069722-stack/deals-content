@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
- "ran_at": "2026-11-17T15:06:13Z",
-=======
  "ran_at": "2026-11-17T15:09:41Z",
->>>>>>> 7908f19 (Read prices without the US prefix; no refurbished items)
  "sources": {
   "woot": {
    "ok": true,

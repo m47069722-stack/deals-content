@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { collectWoot } from './woot.mjs';
 import { collectWalmart } from './walmart.mjs';
 import { collectEbay } from './ebay.mjs';
@@ -25,7 +25,15 @@ const SOURCES = {
   ebay: () => collectEbay({}),
 };
 
-const previous = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { deals: [] };
+const readPrevious = () => {
+  try {
+    const d = JSON.parse(readFileSync(OUT, 'utf8'));
+    return Array.isArray(d.deals) ? d : { deals: [] };
+  } catch {
+    return { deals: [] };
+  }
+};
+const previous = readPrevious();
 const now = Date.now();
 const fresh = (d) => now - Date.parse(d.fetched_at || 0) < (KEEP_DAYS[d.source] || 10) * 86400 * 1000;
 
