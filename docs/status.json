@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-23T14:54:02Z",
+ "ran_at": "2026-11-23T15:47:08Z",
  "sources": {
   "woot": {
    "ok": false,
@@ -8,13 +8,13 @@
   },
   "walmart": {
    "ok": true,
-   "cards": 15
+   "cards": 45
   },
   "ebay": {
    "ok": true,
-   "cards": 15
+   "cards": 45
   }
  },
- "total": 30,
+ "total": 90,
  "published": true
 }
