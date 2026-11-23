@@ -1,11 +1,10 @@
 import { deal, money, pick, sleep, text } from './lib.mjs';
 
 const PAGES = [
-  ['/shop/deals', null], ['/shop/deals/flash-deals', null], ['/shop/deals/clearance', null],
-  ['/shop/deals/electronics', 'Tech'], ['/shop/deals/home', 'Home'], ['/shop/deals/toys', 'Toys'],
+  ['/shop/deals/electronics', 'Tech'], ['/shop/deals/video-games', 'Tech'], ['/shop/deals/home', 'Home'], ['/shop/deals/toys', 'Toys'],
   ['/shop/deals/fashion', 'Fashion'], ['/shop/deals/baby', 'Baby'], ['/shop/deals/pets', 'Pets'],
   ['/shop/deals/sports-and-outdoors', 'Sports'], ['/shop/deals/patio-and-garden', 'Home'], ['/shop/deals/home-improvement', 'Tools'],
-  ['/shop/deals/video-games', 'Tech'],
+  ['/shop/deals', null], ['/shop/deals/flash-deals', null], ['/shop/deals/clearance', null],
 ];
 
 function walk(o, out) {
@@ -39,7 +38,10 @@ export async function collectWalmart({ minPct = 25, n = 15 }) {
       const coupon = it.flag === 'Rollback' ? 'Rollback' : path.endsWith('/clearance') ? 'Clearance' : undefined;
       const picture = /^https:\/\/i5\.walmartimages\.com\/[^?\s]+\.(?:jpe?g|png|webp)/i.exec(it.imageInfo?.thumbnailUrl || it.image || '');
       const d = deal('Walmart', 'walmart', it.name, url, price, old, { coupon, ...(picture ? { image_url: picture[0] } : {}) });
-      if (d) { if (d.category === 'Other' && pageCat) d.category = pageCat; if (d.pct >= minPct) cards.push(d); }
+      if (d) {
+        if (pageCat) d.category = pageCat === 'Home' && ['Kitchen', 'Tools'].includes(d.category) ? d.category : pageCat;
+        if (d.pct >= minPct) cards.push(d);
+      }
     }
     await sleep(1500);
   }
