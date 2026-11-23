@@ -1,9 +1,10 @@
 {
- "ran_at": "2026-11-17T15:09:41Z",
+ "ran_at": "2026-11-23T14:51:04Z",
  "sources": {
   "woot": {
-   "ok": true,
-   "cards": 60
+   "ok": false,
+   "error": "Woot feed page 1: 403",
+   "kept": 0
   },
   "walmart": {
    "ok": true,
@@ -11,9 +12,9 @@
   },
   "ebay": {
    "ok": true,
-   "cards": 12
+   "cards": 15
   }
  },
- "total": 87,
- "published": true
+ "total": 30,
+ "published": false
 }
