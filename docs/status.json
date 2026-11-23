@@ -1,9 +1,9 @@
 {
- "ran_at": "2026-11-23T14:51:04Z",
+ "ran_at": "2026-11-23T14:54:02Z",
  "sources": {
   "woot": {
    "ok": false,
-   "error": "Woot feed page 1: 403",
+   "error": "Woot feed page 1: 403 ForbiddenException {\"message\":\"Forbidden\"}",
    "kept": 0
   },
   "walmart": {
@@ -16,5 +16,5 @@
   }
  },
  "total": 30,
- "published": false
+ "published": true
 }
