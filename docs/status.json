@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-23T19:03:58Z",
+ "ran_at": "2026-11-23T19:06:55Z",
  "sources": {
   "woot": {
    "ok": false,
@@ -12,15 +12,15 @@
   },
   "ebay": {
    "ok": true,
-   "cards": 21
+   "cards": 16
   }
  },
  "pictures": {
   "reader": true,
-  "read": 74,
-  "kept": 118,
+  "read": 26,
+  "kept": 114,
   "dropped": 2
  },
- "total": 121,
+ "total": 116,
  "published": true
 }
