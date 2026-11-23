@@ -56,9 +56,10 @@ let deals = Object.values(result).flat().filter((d) => !d.ends_at || Date.parse(
 deals.sort((a, b) => (b.image_url ? 1 : 0) - (a.image_url ? 1 : 0) || b.pct - a.pct);
 status.total = deals.length;
 
-if (deals.length < MIN_TOTAL && previous.deals.length >= MIN_TOTAL) {
+const stillGood = previous.deals.filter((d) => fresh(d) && (!d.ends_at || Date.parse(d.ends_at) > now)).length;
+if (deals.length === 0 || (deals.length < MIN_TOTAL && deals.length < stillGood)) {
   status.published = false;
-  console.error(`only ${deals.length} cards; the previous file stays`);
+  console.error(`only ${deals.length} cards against ${stillGood} still valid; the previous file stays`);
 } else {
   status.published = true;
   const payload = {

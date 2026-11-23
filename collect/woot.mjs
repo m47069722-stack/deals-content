@@ -13,7 +13,7 @@ export async function collectWoot({ key, minPct = 25, n = 60, maxPages = 60 }) {
   for (let page = 1; page <= pages && page <= maxPages; page++) {
     const r = await fetch(`https://developer.woot.com/feed/All?page=${page}`, { headers, signal: AbortSignal.timeout(30000) });
     if (r.status === 404 && page > 1) break;
-    if (!r.ok) throw new Error(`Woot feed page ${page}: ${r.status}`);
+    if (!r.ok) throw new Error(`Woot feed page ${page}: ${r.status} ${r.headers.get('x-amzn-errortype') || ''} ${(await r.text()).slice(0, 80)}`.trim());
     const body = await r.json();
     pages = body.TotalPages || 1;
     if (!(body.Items || []).length) break;
