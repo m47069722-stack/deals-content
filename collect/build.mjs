@@ -2,9 +2,11 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { collectWoot } from './woot.mjs';
 import { collectWalmart } from './walmart.mjs';
 import { collectEbay } from './ebay.mjs';
+import { checkPictures } from './pictures.mjs';
 
 const OUT = new URL('../docs/deals.json', import.meta.url);
 const STATUS = new URL('../docs/status.json', import.meta.url);
+const PICTURES = new URL('../docs/pictures.json', import.meta.url);
 const KEEP_DAYS = { woot: 3, walmart: 10, ebay: 10 };
 const MIN_TOTAL = 40;
 
@@ -53,6 +55,16 @@ for (const [name, run] of Object.entries(SOURCES)) {
 }
 
 let deals = Object.values(result).flat().filter((d) => !d.ends_at || Date.parse(d.ends_at) > now);
+const readPassed = () => {
+  try {
+    const v = JSON.parse(readFileSync(PICTURES, 'utf8'));
+    return Array.isArray(v.passed) ? v.passed : [];
+  } catch {
+    return [];
+  }
+};
+const pictures = await checkPictures(deals, readPassed());
+status.pictures = pictures.report;
 deals.sort((a, b) => (b.image_url ? 1 : 0) - (a.image_url ? 1 : 0) || b.pct - a.pct);
 status.total = deals.length;
 
@@ -73,6 +85,7 @@ if (deals.length === 0 || (deals.length < MIN_TOTAL && deals.length < stillGood)
   };
   mkdirSync(new URL('../docs/', import.meta.url), { recursive: true });
   writeFileSync(OUT, JSON.stringify(payload));
+  writeFileSync(PICTURES, JSON.stringify({ passed: pictures.passed }));
 }
 writeFileSync(STATUS, JSON.stringify(status, null, 1) + '\n');
 console.log(JSON.stringify(status));

@@ -23,6 +23,7 @@ export async function collectEbay({ minPct = 25, n = 15 }) {
       const price = /itemprop="?price"?[^>]*>(?:US\s)?\$\s?([\d,]+\.\d{2})/.exec(tile);
       const old = /itemtile-price-strikethrough[^>]*>(?:US\s)?\$\s?([\d,]+\.\d{2})/.exec(tile);
       if (!link || !title || !price || !old) continue;
+      if (/eBay Refurbished|Certified Refurbished/i.test(tile)) continue;
       const picture = /(?:data-config-src|src)="?(https:\/\/i\.ebayimg\.com\/images\/g\/[^\/"\s>]+\/s-l\d+\.(?:jpe?g|png|webp))/.exec(tile);
       const d = deal('eBay', 'ebay', title[1], link[1], Number(price[1].replace(/,/g, '')), Number(old[1].replace(/,/g, '')), picture ? { image_url: picture[1] } : {});
       if (d) { if (d.category === 'Other' && pageCat) d.category = pageCat; if (d.pct >= minPct) cards.push(d); }

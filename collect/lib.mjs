@@ -15,7 +15,7 @@ export const CATS = [
   ['Sports', ['bike', 'treadmill', 'dumbbell', 'yoga', 'tent', 'running', 'golf', 'fitness', 'outdoor', 'camping', 'hiking', 'fishing', 'basketball', 'soccer', 'scooter', 'e-bike', 'ebike', 'kayak', 'exercise']],
 ];
 
-const BAD = /vape|tobacco|cigar|nicotine|cbd|adult|lingerie|erotic|nsfw|sexy|sex toy|ammo|firearm|airsoft|wine|liquor|beer|gift card|e-gift|dental|google play|play store|subscription|membership|warranty plan|protection plan|promo code|coupon code|use code|refurb|certified refur|\(certified|renewed|pre-owned|preowned|open box|open-box|\bused\b|- (?:good|very good|excellent|fair|acceptable)\b|\bgrade [a-c]\b|for parts|hearing aid|\btester\b/i;
+const BAD = /vape|tobacco|cigar|nicotine|cbd|adult|lingerie|erotic|nsfw|sexy|sex toy|ammo|firearm|airsoft|wine|liquor|beer|gift card|e-gift|dental|google play|play store|subscription|membership|warranty plan|protection plan|promo code|coupon code|use code|refurb|certified refur|\(certified|renewed|pre-owned|preowned|open box|open-box|\bused\b|- (?:good|very good|excellent|fair|acceptable)\b|\bgrade [a-c]\b|for parts|hearing aid|\btester\b|(?:good|excellent|fair|acceptable) condition|\bgood\s*$/i;
 // Watches and jewelry are sold against inflated list prices almost everywhere; a "94% off" card is not a real price drop.
 const INFLATED = /\bwatch(?:es)?\b|\bdiamond|\bcarat|\b\d+(?:\.\d+)?\s?ct\b|\bring\b|\bnecklace|\bbracelet|\bearring|\bpendant|\bjewel|\bgemstone|\bsapphire|\bemerald|\bmoissanite|\bsilver\b.*\bchain|\bgold\b.*\bchain|cologne|perfume|parfum|fragrance|eau de|\bed[tp]\b|toilette|body mist/i;
 const MAX_PCT = 80;
