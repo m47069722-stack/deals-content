@@ -66,7 +66,10 @@ if (deals.length === 0 || (deals.length < MIN_TOTAL && deals.length < stillGood)
     updated_at: status.ran_at,
     deals,
     stores: STORES,
-    ...(deals.some((d) => d.source === 'woot') ? { attribution: { woot: 'Offers from Woot, an Amazon company' } } : {}),
+    attribution: {
+      ...(deals.some((d) => d.source === 'woot') ? { woot: 'Offers from Woot, an Amazon company' } : {}),
+      ...(deals.some((d) => d.source === 'ebay' && d.image_url) ? { ebay: 'Product pictures from eBay listings' } : {}),
+    },
   };
   mkdirSync(new URL('../docs/', import.meta.url), { recursive: true });
   writeFileSync(OUT, JSON.stringify(payload));
