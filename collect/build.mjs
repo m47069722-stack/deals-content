@@ -68,7 +68,7 @@ if (deals.length === 0 || (deals.length < MIN_TOTAL && deals.length < stillGood)
     stores: STORES,
     attribution: {
       ...(deals.some((d) => d.source === 'woot') ? { woot: 'Offers from Woot, an Amazon company' } : {}),
-      ...(deals.some((d) => d.source === 'ebay' && d.image_url) ? { ebay: 'Product pictures from eBay listings' } : {}),
+      ...(deals.some((d) => d.image_url && d.source !== 'woot') ? { pictures: 'Product pictures come from each store’s own listing' } : {}),
     },
   };
   mkdirSync(new URL('../docs/', import.meta.url), { recursive: true });

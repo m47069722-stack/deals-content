@@ -9,21 +9,24 @@ export const CATS = [
   ['Tools', ['drill', 'saw', 'tool', 'wrench', 'ladder', 'compressor', 'sander', 'grinder', 'flashlight', 'tape', 'screwdriver', 'socket', 'garage', 'pressure washer', 'generator', 'lawn', 'mower', 'trimmer', 'blower']],
   ['Toys', ['lego', 'toy', 'doll', 'puzzle', 'board game', 'nerf', 'plush', 'kids', 'play set', 'playset', 'funko', 'figure', 'magnetic tiles', 'blaster', 'ride-on', 'ride on']],
   ['Beauty', ['hair', 'skin', 'serum', 'shaver', 'makeup', 'razor', 'lotion', 'shampoo', 'toothbrush', 'oral-b', 'electric brush', 'perfume', 'fragrance', 'cologne']],
-  ['Fashion', ['shoe', 'sneaker', 'boot', 'jacket', 'jeans', 'dress', 'hoodie', 'coat', 'shirt', 'loafer', 'sock', 'women', "men's", 'mens', 'womens', 'sandal', 'nike', 'adidas', 'sunglasses', 'handbag', 'wallet', 'backpack', 'ring', 'necklace', 'earring', 'diamond', 'bracelet', 'sweater', 'pants', 'legging', 'apparel']],
+  ['Fashion', ['shoe', 'sneaker', 'boot', 'jacket', 'jeans', 'dress', 'hoodie', 'coat', 'shirt', 'loafer', 'sock', 'women', "men's", 'mens', 'womens', 'sandal', 'nike', 'adidas', 'sunglasses', 'handbag', 'wallet', 'backpack', 'ring', 'necklace', 'earring', 'diamond', 'bracelet', 'sweater', 'pants', 'legging', 'apparel', 'shorts', 'polo', 'cap', 'hat', 'jogger', 'slipper', 'skirt', 'blouse', 'puma', 'asics', 'reebok', 'new balance', 'under armour']],
   ['Baby', ['stroller', 'car seat', 'crib', 'diaper', 'baby', 'infant', 'toddler']],
   ['Pets', ['dog', 'cat ', 'pet ', 'litter', 'puppy', 'kitten']],
   ['Sports', ['bike', 'treadmill', 'dumbbell', 'yoga', 'tent', 'running', 'golf', 'fitness', 'outdoor', 'camping', 'hiking', 'fishing', 'basketball', 'soccer', 'scooter', 'e-bike', 'ebike', 'kayak', 'exercise']],
 ];
 
-const BAD = /vape|tobacco|cigar|nicotine|cbd|adult|lingerie|erotic|nsfw|sexy|sex toy|ammo|firearm|airsoft|wine|liquor|beer|gift card|e-gift|dental|google play|play store|subscription|membership|warranty plan|protection plan|promo code|coupon code|use code|refurbished|renewed|pre-owned|preowned|open box|open-box|\bused\b/i;
+const BAD = /vape|tobacco|cigar|nicotine|cbd|adult|lingerie|erotic|nsfw|sexy|sex toy|ammo|firearm|airsoft|wine|liquor|beer|gift card|e-gift|dental|google play|play store|subscription|membership|warranty plan|protection plan|promo code|coupon code|use code|refurb|certified refur|\(certified|renewed|pre-owned|preowned|open box|open-box|\bused\b|- (?:good|very good|excellent|fair|acceptable)\b|\bgrade [a-c]\b|for parts|hearing aid|\btester\b/i;
 // Watches and jewelry are sold against inflated list prices almost everywhere; a "94% off" card is not a real price drop.
-const INFLATED = /\bwatch(?:es)?\b|\bdiamond|\bcarat|\b\d+(?:\.\d+)?\s?ct\b|\bring\b|\bnecklace|\bbracelet|\bearring|\bpendant|\bjewel|\bgemstone|\bsapphire|\bemerald|\bmoissanite|\bsilver\b.*\bchain|\bgold\b.*\bchain/i;
+const INFLATED = /\bwatch(?:es)?\b|\bdiamond|\bcarat|\b\d+(?:\.\d+)?\s?ct\b|\bring\b|\bnecklace|\bbracelet|\bearring|\bpendant|\bjewel|\bgemstone|\bsapphire|\bemerald|\bmoissanite|\bsilver\b.*\bchain|\bgold\b.*\bchain|cologne|perfume|parfum|fragrance|eau de|\bed[tp]\b|toilette|body mist/i;
 const MAX_PCT = 80;
+const MAX_PRICE = 1500;
 const SHOUT = (t) => { const l = [...t].filter((c) => /[a-z]/i.test(c)); return l.length > 12 && l.filter((c) => c === c.toUpperCase()).length / l.length > 0.6; };
 
+const WORD = (w) => new RegExp('(?:^|[^a-z])' + w.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+const CAT_RE = CATS.map(([c, words]) => [c, words.map(WORD)]);
+
 export function category(title, fallback = 'Other') {
-  const t = ' ' + title.toLowerCase() + ' ';
-  for (const [c, words] of CATS) if (words.some((w) => t.includes(w))) return c;
+  for (const [c, res] of CAT_RE) if (res.some((r) => r.test(title))) return c;
   return fallback;
 }
 
@@ -43,7 +46,7 @@ export function clean(title) {
 /** One card, or null when the product should not be listed. Prices are numbers; `old` is the store's own previous or list price. */
 export function deal(store, source, title, url, price, old, extra = {}) {
   title = clean(title);
-  if (!title || title.length < 8 || BAD.test(title) || INFLATED.test(title) || SHOUT(title) || !(price > 0)) return null;
+  if (!title || title.length < 8 || BAD.test(title) || INFLATED.test(title) || SHOUT(title) || !(price > 0) || price > MAX_PRICE) return null;
   if (!(old > price)) return null;
   const pct = Math.round((1 - price / old) * 100);
   if (pct > MAX_PCT) return null;

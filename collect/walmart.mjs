@@ -14,7 +14,7 @@ function walk(o, out) {
   }
 }
 
-/** Walmart's public deal pages: products with a previous price, in stock, not sponsored, with enough reviews. No pictures. */
+/** Walmart's public deal pages: products with a previous price, in stock, not sponsored, with enough reviews and the product's own picture. */
 export async function collectWalmart({ minPct = 25, n = 15 }) {
   const cards = [];
   for (const [path, pageCat] of PAGES) {
@@ -31,7 +31,8 @@ export async function collectWalmart({ minPct = 25, n = 15 }) {
       const url = 'https://www.walmart.com' + (it.canonicalUrl || '').split('?')[0];
       if (!url.includes('/ip/')) continue;
       const coupon = it.flag === 'Rollback' ? 'Rollback' : path.endsWith('/clearance') ? 'Clearance' : undefined;
-      const d = deal('Walmart', 'walmart', it.name, url, price, old, { coupon });
+      const picture = /^https:\/\/i5\.walmartimages\.com\/[^?\s]+\.(?:jpe?g|png|webp)/i.exec(it.imageInfo?.thumbnailUrl || it.image || '');
+      const d = deal('Walmart', 'walmart', it.name, url, price, old, { coupon, ...(picture ? { image_url: picture[0] } : {}) });
       if (d) { if (d.category === 'Other' && pageCat) d.category = pageCat; if (d.pct >= minPct) cards.push(d); }
     }
     await sleep(1500);
