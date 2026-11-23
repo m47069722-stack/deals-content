@@ -23,5 +23,5 @@ export async function collectEbay({ minPct = 25, n = 15 }) {
     }
     await sleep(1500);
   }
-  return pick(cards, n, 4);
+  return pick(cards, n, Math.max(4, Math.ceil(n / 4)));
 }

@@ -21,8 +21,8 @@ const STORES = [
 
 const SOURCES = {
   woot: () => collectWoot({ key: process.env.WOOT_KEY }),
-  walmart: () => collectWalmart({}),
-  ebay: () => collectEbay({}),
+  walmart: (n) => collectWalmart({ n }),
+  ebay: (n) => collectEbay({ n }),
 };
 
 const readPrevious = () => {
@@ -40,7 +40,7 @@ const fresh = (d) => now - Date.parse(d.fetched_at || 0) < (KEEP_DAYS[d.source] 
 const result = {}; const status = { ran_at: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'), sources: {} };
 for (const [name, run] of Object.entries(SOURCES)) {
   try {
-    const cards = await run();
+    const cards = await run(result.woot?.length ? 15 : 45);
     if (cards.length < 5) throw new Error(`only ${cards.length} cards`);
     result[name] = cards;
     status.sources[name] = { ok: true, cards: cards.length };
@@ -66,7 +66,7 @@ if (deals.length === 0 || (deals.length < MIN_TOTAL && deals.length < stillGood)
     updated_at: status.ran_at,
     deals,
     stores: STORES,
-    attribution: { woot: 'Offers from Woot, an Amazon company' },
+    ...(deals.some((d) => d.source === 'woot') ? { attribution: { woot: 'Offers from Woot, an Amazon company' } } : {}),
   };
   mkdirSync(new URL('../docs/', import.meta.url), { recursive: true });
   writeFileSync(OUT, JSON.stringify(payload));
