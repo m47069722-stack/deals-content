@@ -9,8 +9,13 @@ export async function collectEbay({ minPct = 25, n = 15 }) {
     const html = await text('https://www.ebay.com' + path);
     const tiles = html.split(/<div[^>]*class="dne-itemtile dne-itemtile-[^"]*"/).slice(1);
     if (process.env.DEBUG_EBAY) {
-      const i = html.indexOf('dne-itemtile');
-      const j = html.indexOf('dne-itemtile-price'); console.error(`ebay ${path}: size ${html.length}, tiles ${tiles.length}, price markers ${(html.match(/dne-itemtile-price/g) || []).length}, strike ${(html.match(/itemtile-price-strikethrough/g) || []).length}, name props ${(html.match(/itemprop="?name/g) || []).length}; first price block: ${JSON.stringify(html.slice(Math.max(0, j - 300), j + 500))}`);
+      let shown = 0;
+      for (const tile of tiles) {
+        const plain = tile.replace(/data-click='[^']*'/g, '');
+        const hits = [...plain.matchAll(/.{0,90}(?:coupon|promo|% ?off|\bcode\b|refurb|pre-owned|condition|certified).{0,90}/gi)].map((m) => m[0].replace(/\s+/g, ' '));
+        if (hits.length && shown < 12) { shown++; console.error(`ebay ${path} tile marks: ${JSON.stringify(hits.slice(0, 3))}`); }
+      }
+      console.error(`ebay ${path}: tiles ${tiles.length}`);
     }
     for (const tile of tiles) {
       const link = /href="?(https:\/\/www\.ebay\.com\/itm\/\d+)/.exec(tile);
